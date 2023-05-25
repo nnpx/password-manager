@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
+import json
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
@@ -25,6 +26,12 @@ def save():
     website_data = website_input.get()
     email_data = email_input.get()
     password_data = password_input.get()
+    new_data = {
+        website_data: {
+            "email": email_data,
+            "password": password_data
+        }
+    }
 
     if website_data == "" or email_data == "" or password_data == "":
         messagebox.showwarning(title="Oops", message="Please don't leave any fields empty!")
@@ -33,8 +40,24 @@ def save():
         is_ok = messagebox.askokcancel(title=website_data, message=f"These are the details entered: \nEmail: {email_data}"
                                                            f"\nPassword: {password_data} \nIs it the data above correct?")
         if is_ok:
-            with open("data.txt", "a") as file:
-                file.write(f"{website_data} / {email_data} / {password_data}\n")
+            try:
+                with open("data.json", "r") as file:
+                    # Reading old data
+                    data = json.load(file)
+
+            except FileNotFoundError:
+                with open("data.json", "w") as file:
+                    json.dump(new_data, file, indent=4)
+
+            else:
+                # Updating old data with new data
+                data.update(new_data)
+
+                with open("data.json", "w") as file:
+                    # Saving updated data
+                    json.dump(data, file, indent=4)
+
+            finally:
                 website_input.delete(0, "end")
                 password_input.delete(0, "end")
 
@@ -51,9 +74,12 @@ canvas.grid(column=1, row=0)
 
 website_text = Label(text="Website:")
 website_text.grid(column=0, row=1)
-website_input = Entry(width=39)
-website_input.grid(column=1, columnspan=2, row=1)
+website_input = Entry(width=21)
+website_input.grid(column=1, row=1)
 website_input.focus()
+
+search_button = Button(text="Search", width=14, command=search)
+search_button.grid(column=2, row=1)
 
 email_text = Label(text="Email/ Username:")
 email_text.grid(column=0, row=2)
@@ -66,7 +92,7 @@ password_text.grid(column=0, row=3)
 password_input = Entry(width=21)
 password_input.grid(column=1, row=3)
 
-generate_password_button = Button(text="Generate Password", command=generate_password)
+generate_password_button = Button(text="Generate Password", width=14, command=generate_password)
 generate_password_button.grid(column=2, row=3)
 
 add_button = Button(text="Add", width=33, command=save)
