@@ -78,7 +78,7 @@ website_input = Entry(width=21)
 website_input.grid(column=1, row=1)
 website_input.focus()
 
-search_button = Button(text="Search", width=14)
+search_button = Button(text="Search", width=14, command=search)
 search_button.grid(column=2, row=1)
 
 email_text = Label(text="Email/ Username:")
